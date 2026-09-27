@@ -1,8 +1,11 @@
+```python
 import chromadb
 from chromadb.utils.embedding_functions import DefaultEmbeddingFunction
 from openai import OpenAI
 from dotenv import load_dotenv
 import os
+
+from services.ingest import create_documents
 
 load_dotenv()
 
@@ -38,6 +41,59 @@ collection = chroma_client.get_or_create_collection(
     name="nusantaracare_knowledge",
     embedding_function=embedding_function
 )
+
+
+# =========================
+# Auto Ingest Knowledge Base
+# =========================
+
+def initialize_knowledge_base():
+    """
+    Jika ChromaDB masih kosong, masukkan dokumen
+    dari knowledge base ke ChromaDB.
+    """
+
+    current_count = collection.count()
+
+    print(f"Jumlah data ChromaDB saat ini: {current_count}")
+
+    if current_count > 0:
+        print("Knowledge base sudah tersedia.")
+        return
+
+    print("ChromaDB kosong. Memulai ingest knowledge base...")
+
+    documents = create_documents()
+
+    texts = [
+        document["text"]
+        for document in documents
+    ]
+
+    metadatas = [
+        document["metadata"]
+        for document in documents
+    ]
+
+    ids = [
+        document["chunk_id"]
+        for document in documents
+    ]
+
+    collection.upsert(
+        ids=ids,
+        documents=texts,
+        metadatas=metadatas
+    )
+
+    print(
+        f"Ingest selesai. Total data ChromaDB: "
+        f"{collection.count()}"
+    )
+
+
+# Jalankan saat aplikasi pertama kali menggunakan RAG
+initialize_knowledge_base()
 
 
 # =========================
@@ -132,3 +188,4 @@ def ask_rag(query):
     )
 
     return answer
+```
