@@ -188,4 +188,3 @@ def ask_rag(query):
     )
 
     return answer
-```
