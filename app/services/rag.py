@@ -1,4 +1,4 @@
-```python
+
 import chromadb
 from chromadb.utils.embedding_functions import DefaultEmbeddingFunction
 from openai import OpenAI
