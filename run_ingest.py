@@ -1,18 +1,16 @@
 import chromadb
-from sentence_transformers import SentenceTransformer
+from chromadb.utils.embedding_functions import DefaultEmbeddingFunction
 from app.services.ingest import create_documents
 
 
 # =========================
-# 1. Load embedding model
+# 1. Load embedding function
 # =========================
-print("Loading embedding model...")
+print("Loading embedding function...")
 
-embedding_model = SentenceTransformer(
-    "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
-)
+embedding_function = DefaultEmbeddingFunction()
 
-print("Embedding model loaded.")
+print("Embedding function loaded.")
 
 
 # =========================
@@ -33,7 +31,8 @@ chroma_client = chromadb.PersistentClient(
 )
 
 collection = chroma_client.get_or_create_collection(
-    name="nusantaracare_knowledge"
+    name="nusantaracare_knowledge",
+    embedding_function=embedding_function
 )
 
 
@@ -47,19 +46,7 @@ texts = [
 
 
 # =========================
-# 5. Buat embedding
-# =========================
-print("Creating embeddings...")
-
-embeddings = embedding_model.encode(
-    texts
-).tolist()
-
-print("Embeddings created.")
-
-
-# =========================
-# 6. Metadata
+# 5. Metadata
 # =========================
 metadatas = [
     document["metadata"]
@@ -73,14 +60,13 @@ ids = [
 
 
 # =========================
-# 7. Masukkan ke ChromaDB
+# 6. Masukkan ke ChromaDB
 # =========================
 print("Adding documents to ChromaDB...")
 
 collection.upsert(
     ids=ids,
     documents=texts,
-    embeddings=embeddings,
     metadatas=metadatas
 )
 

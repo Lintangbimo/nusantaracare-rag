@@ -1,5 +1,5 @@
 import chromadb
-from sentence_transformers import SentenceTransformer
+from chromadb.utils.embedding_functions import DefaultEmbeddingFunction
 from openai import OpenAI
 from dotenv import load_dotenv
 import os
@@ -16,14 +16,14 @@ llm_client = OpenAI(
     base_url="https://api.notispaces.cloud/v1"
 )
 
+LLM_MODEL = "notispace-v1"
+
 
 # =========================
 # Embedding Model
 # =========================
 
-embedding_model = SentenceTransformer(
-    "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
-)
+embedding_function = DefaultEmbeddingFunction()
 
 
 # =========================
@@ -35,7 +35,8 @@ chroma_client = chromadb.PersistentClient(
 )
 
 collection = chroma_client.get_or_create_collection(
-    name="nusantaracare_knowledge"
+    name="nusantaracare_knowledge",
+    embedding_function=embedding_function
 )
 
 
@@ -48,12 +49,8 @@ def search_knowledge(query, top_k=3):
     Mencari informasi paling relevan dari ChromaDB.
     """
 
-    query_embedding = embedding_model.encode(
-        [query]
-    ).tolist()
-
     results = collection.query(
-        query_embeddings=query_embedding,
+        query_texts=[query],
         n_results=top_k
     )
 
@@ -65,6 +62,7 @@ def search_knowledge(query, top_k=3):
 # =========================
 # Generate Answer
 # =========================
+
 def generate_answer(query, context):
 
     prompt = f"""
