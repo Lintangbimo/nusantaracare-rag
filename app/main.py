@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException
-from .schemas import ChatRequest, ChatResponse
-from .services.agent import run_agent
+from schemas import ChatRequest, ChatResponse
+from services.agent import run_agent
 app = FastAPI(
     title="NusantaraCare RAG API",
     description="Backend service RAG untuk NusantaraCare",

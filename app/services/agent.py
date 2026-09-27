@@ -1,4 +1,4 @@
-from .rag import ask_rag
+from rag import ask_rag
 
 
 def run_agent(query):
