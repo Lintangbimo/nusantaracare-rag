@@ -1,4 +1,3 @@
-
 import chromadb
 from chromadb.utils.embedding_functions import DefaultEmbeddingFunction
 from openai import OpenAI
@@ -8,7 +7,6 @@ import os
 from services.ingest import create_documents
 
 load_dotenv()
-
 
 # =========================
 # LLM NotispaceAI
@@ -21,13 +19,11 @@ llm_client = OpenAI(
 
 LLM_MODEL = "notispace-v1"
 
-
 # =========================
-# Embedding Model
+# Embedding
 # =========================
 
 embedding_function = DefaultEmbeddingFunction()
-
 
 # =========================
 # ChromaDB
@@ -42,17 +38,11 @@ collection = chroma_client.get_or_create_collection(
     embedding_function=embedding_function
 )
 
-
 # =========================
-# Auto Ingest Knowledge Base
+# Auto Ingest
 # =========================
 
 def initialize_knowledge_base():
-    """
-    Jika ChromaDB masih kosong, masukkan dokumen
-    dari knowledge base ke ChromaDB.
-    """
-
     current_count = collection.count()
 
     print(f"Jumlah data ChromaDB saat ini: {current_count}")
@@ -92,19 +82,13 @@ def initialize_knowledge_base():
     )
 
 
-# Jalankan saat aplikasi pertama kali menggunakan RAG
 initialize_knowledge_base()
-
 
 # =========================
 # Search Knowledge
 # =========================
 
 def search_knowledge(query, top_k=3):
-    """
-    Mencari informasi paling relevan dari ChromaDB.
-    """
-
     results = collection.query(
         query_texts=[query],
         n_results=top_k
@@ -113,7 +97,6 @@ def search_knowledge(query, top_k=3):
     documents = results["documents"][0]
 
     return documents
-
 
 # =========================
 # Generate Answer
@@ -165,15 +148,11 @@ Pertanyaan:
             "Silakan coba lagi nanti."
         )
 
-
 # =========================
 # RAG Pipeline
 # =========================
 
 def ask_rag(query):
-    """
-    Pipeline utama RAG.
-    """
 
     documents = search_knowledge(query)
 
